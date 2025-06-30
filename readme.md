@@ -88,3 +88,41 @@ This backend service powers key features such as:
 ├── tsconfig.json                      # TypeScript configuration
 └── README.md                          # Documentation for the project
 ```
+
+---
+
+## 🔒 Authentication
+Authentication is handled via **JWT** and **Passport.js**, with routes protected using middleware.
+
+Supported flows:
+- Register/Login
+- Secure sessions with JWT
+- Role-based access (Admin, Editor, Viewer)
+
+---
+
+## 🌐 Real-time Collaboration (WIP)
+We use a custom-built WebSocket server to enable real-time co-editing of PRD documents.
+
+- Documents are broken into sections
+- Changes are broadcasted to connected users
+- Presence (user online/offline) is tracked via Redis
+- Future: Operational Transformation (OT) engine or CRDT integration
+
+---
+
+## 🤖 OpenAI Integration
+- PRD generation and enhancement features use the OpenAI API to:
+  - Auto-fill PRD sections based on prompts
+  - Suggest improvements to written sections
+  - Provide formatting or structural guidance
+
+---
+
+## 🛠 Setup & Development
+
+### 1. Clone Repo
+<!-- ```bash
+git clone https://github.com/your-org/productpadi-backend.git
+cd productpadi-backend
+ -->
