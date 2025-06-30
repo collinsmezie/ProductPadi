@@ -15,6 +15,12 @@ Backend service for ProductPadi
 
 # ProductPadi - Backend Documentation
 
+![Node.js](https://img.shields.io/badge/Node.js-18.x-green?logo=node.js)
+![TypeScript](https://img.shields.io/badge/TypeScript-4.x-blue?logo=typescript)
+![MongoDB](https://img.shields.io/badge/MongoDB-ORM--Prisma-green?logo=mongodb)
+![License](https://img.shields.io/badge/license-MIT-brightgreen)
+![Status](https://img.shields.io/badge/status-In%20Development-yellow)
+
 ## 🧠 Overview
 
 **ProductPadi** is a collaborative Product Requirements Document (PRD) management platform that helps product teams write, edit, and manage PRDs in real-time.
@@ -119,10 +125,27 @@ We use a custom-built WebSocket server to enable real-time co-editing of PRD doc
 
 ---
 
-## 🛠 Setup & Development
+<!-- ## 🛠 Setup & Development
 
-### 1. Clone Repo
+### 1. Clone Repo -->
 <!-- ```bash
 git clone https://github.com/your-org/productpadi-backend.git
 cd productpadi-backend
  -->
+
+## ⚙️ Getting Started
+
+```bash
+# Clone the repo
+git clone https://github.com/yourusername/productpadi-backend.git
+cd productpadi-backend
+
+# Install dependencies
+npm install
+
+# Set environment variables
+cp .env.example .env
+# Fill in your DB_URI, JWT_SECRET, OpenAI API Key, etc.
+
+# Run development server
+npm run dev
