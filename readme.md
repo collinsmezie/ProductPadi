@@ -13,7 +13,7 @@ Backend service for ProductPadi
 - MongoDB
 - OpenAI API -->
 
-# ProductPadi - Backend Documentation
+# ProductPadi - Backend Documentationf
 
 ![Node.js](https://img.shields.io/badge/Node.js-18.x-green?logo=node.js)
 ![TypeScript](https://img.shields.io/badge/TypeScript-4.x-blue?logo=typescript)
