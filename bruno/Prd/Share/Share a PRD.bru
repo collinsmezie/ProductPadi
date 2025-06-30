@@ -1,0 +1,18 @@
+meta {
+  name: Share a PRD
+  type: http
+  seq: 1
+}
+
+post {
+  url: http://localhost:3000/prd/share
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "prdId": "67db2d4b8a3c6527d44c5cb1",
+    "email": "like@gmail.com"
+  }
+}

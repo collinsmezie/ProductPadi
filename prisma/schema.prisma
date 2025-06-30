@@ -1,0 +1,294 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+//* Enums 
+enum Priority {
+  High
+  Medium
+  Low
+}
+
+enum PrdTemplate {
+  DEFAULT
+}
+
+enum SharePermission {
+  VIEW
+  EDIT
+}
+
+model User {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  email     String   @unique
+  fullName  String
+  image     String?
+  password  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+
+  // Relations
+  PRD        PRD[]
+  folders    Folder[]
+  sharedWith Share[]   @relation("SharedWith")
+  sharedBy   Share[]   @relation("SharedBy")
+  comments   Comment[] @relation("prdUserComments")
+}
+
+model Folder {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  description String
+  userId      String   @db.ObjectId
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  prdIds      String[] @db.ObjectId
+  prds        PRD[]    @relation(fields: [prdIds], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, name])
+}
+
+model PRD {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  // Base fields 
+  prdType        PrdTemplate @default(DEFAULT)
+  title          String      @default("untitled")
+  chosenLanguage String      @default("english")
+
+  // Visibility settings - default is PRIVATE
+  isPublic Boolean @default(false) // When true, anyone can access without sharing
+
+  // Templates
+  defaultTemplate DefaultPrdTemplate?
+
+  // user relation
+  userId String @db.ObjectId
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // folder relation
+  folderIds String[] @db.ObjectId
+  folders   Folder[] @relation(fields: [folderIds], references: [id])
+
+  // sharing
+  shares Share[]
+
+  // comments
+  comments Comment[] @relation("PRDComments")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model DefaultPrdTemplate {
+  id                        String                                    @id @default(auto()) @map("_id") @db.ObjectId
+  overview                  String
+  gptFileId                 String?
+  fileId                    String?
+  prdPersonalDetails        DefaultTemplatePrdPersonalDetails?
+  objectives                DefaultTemplateProductObjective[]
+  functionalRequirements    DefaultTemplateFunctionalRequirement[]
+  nonFunctionalRequirements DefaultTemplateNonFunctionalRequirement[]
+  assumptionsAndConstraints DefaultTemplateAssumptionsConstraints[]
+  dependencies              DefaultTemplateDependency[]
+  conditionCriteria         DefaultTemplateConditionCriteria[]
+  riskAnalysis              DefaultTemplateRiskAnalysis[]
+  priorityEffort            DefaultTemplatePriorityEffort[]
+  versionHistory            DefaultTemplateVersionHistory[]
+  stakeholders              DefaultTemplateStakeHolders[]
+
+  prdId String @unique @db.ObjectId
+  prd   PRD    @relation(fields: [prdId], references: [id], onDelete: Cascade)
+
+  comments Comment[] @relation("DefaultTemplateComments")
+
+  lastOpenedAt  DateTime?
+  lastEditBy    String?   @db.ObjectId
+  activeEditors String[]  @db.ObjectId
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model DefaultTemplatePrdPersonalDetails {
+  id                   String             @id @default(auto()) @map("_id") @db.ObjectId
+  productTitle         String
+  author               String
+  phoneNumber          String
+  email                String
+  productVisualFileUrl String?
+  address              String
+  DefaultPrdTemplate   DefaultPrdTemplate @relation(fields: [defaultPrdTemplateId], references: [id], onDelete: Cascade)
+  defaultPrdTemplateId String             @unique @db.ObjectId
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model DefaultTemplateProductObjective {
+  id                   String             @id @default(auto()) @map("_id") @db.ObjectId
+  description          String
+  DefaultPrdTemplate   DefaultPrdTemplate @relation(fields: [defaultPrdTemplateId], references: [id], onDelete: Cascade)
+  defaultPrdTemplateId String             @db.ObjectId
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model DefaultTemplateFunctionalRequirement {
+  id                   String             @id @default(auto()) @map("_id") @db.ObjectId
+  requirement          String
+  DefaultPrdTemplate   DefaultPrdTemplate @relation(fields: [defaultPrdTemplateId], references: [id], onDelete: Cascade)
+  defaultPrdTemplateId String             @db.ObjectId
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model DefaultTemplateNonFunctionalRequirement {
+  id                   String             @id @default(auto()) @map("_id") @db.ObjectId
+  requirement          String
+  DefaultPrdTemplate   DefaultPrdTemplate @relation(fields: [defaultPrdTemplateId], references: [id], onDelete: Cascade)
+  defaultPrdTemplateId String             @db.ObjectId
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model DefaultTemplateAssumptionsConstraints {
+  id         String @id @default(auto()) @map("_id") @db.ObjectId
+  assumption String
+  constraint String
+
+  DefaultPrdTemplate   DefaultPrdTemplate @relation(fields: [defaultPrdTemplateId], references: [id], onDelete: Cascade)
+  defaultPrdTemplateId String             @db.ObjectId
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model DefaultTemplateDependency {
+  id                   String             @id @default(auto()) @map("_id") @db.ObjectId
+  description          String
+  DefaultPrdTemplate   DefaultPrdTemplate @relation(fields: [defaultPrdTemplateId], references: [id], onDelete: Cascade)
+  defaultPrdTemplateId String             @db.ObjectId
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model DefaultTemplateConditionCriteria {
+  id                   String             @id @default(auto()) @map("_id") @db.ObjectId
+  condition            String
+  criteria             String
+  DefaultPrdTemplate   DefaultPrdTemplate @relation(fields: [defaultPrdTemplateId], references: [id], onDelete: Cascade)
+  defaultPrdTemplateId String             @db.ObjectId
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model DefaultTemplateRiskAnalysis {
+  id                   String             @id @default(auto()) @map("_id") @db.ObjectId
+  risk                 String
+  mitigation           String
+  DefaultPrdTemplate   DefaultPrdTemplate @relation(fields: [defaultPrdTemplateId], references: [id], onDelete: Cascade)
+  defaultPrdTemplateId String             @db.ObjectId
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model DefaultTemplatePriorityEffort {
+  id                   String             @id @default(auto()) @map("_id") @db.ObjectId
+  requirement          String
+  priority             Priority
+  estimatedEffort      String
+  DefaultPrdTemplate   DefaultPrdTemplate @relation(fields: [defaultPrdTemplateId], references: [id], onDelete: Cascade)
+  defaultPrdTemplateId String             @db.ObjectId
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model DefaultTemplateVersionHistory {
+  id                   String             @id @default(auto()) @map("_id") @db.ObjectId
+  version              String
+  date                 DateTime
+  descriptionOfEdit    String[]
+  editsCompletedBy     String
+  DefaultPrdTemplate   DefaultPrdTemplate @relation(fields: [defaultPrdTemplateId], references: [id], onDelete: Cascade)
+  defaultPrdTemplateId String             @db.ObjectId
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model DefaultTemplateStakeHolders {
+  id                   String             @id @default(auto()) @map("_id") @db.ObjectId
+  name                 String
+  role                 String
+  DefaultPrdTemplate   DefaultPrdTemplate @relation(fields: [defaultPrdTemplateId], references: [id], onDelete: Cascade)
+  defaultPrdTemplateId String             @db.ObjectId
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Share {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  // PRD being shared
+  prdId String @db.ObjectId
+  prd   PRD    @relation(fields: [prdId], references: [id], onDelete: Cascade)
+
+  // Who shared it
+  sharedById String @db.ObjectId
+  sharedBy   User   @relation("SharedBy", fields: [sharedById], references: [id], onDelete: Cascade)
+
+  // Who it's shared with via email
+  sharedWithEmail String
+  sharedWithId    String? @db.ObjectId
+  sharedWith      User?   @relation("SharedWith", fields: [sharedWithId], references: [id], onDelete: SetNull)
+
+  // Permission level
+  permission SharePermission @default(VIEW)
+
+  // For tracking and management
+  isActive Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([sharedWithEmail])
+  @@index([prdId])
+}
+
+model Comment {
+  id                    String   @id @default(auto()) @map("_id") @db.ObjectId
+  content               String
+  userId                String   @db.ObjectId
+  user                  User     @relation("prdUserComments", fields: [userId], references: [id], onDelete: Cascade)
+  prdId                 String   @db.ObjectId
+  prd                   PRD      @relation("PRDComments", fields: [prdId], references: [id], onDelete: Cascade)
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  fieldType             String?  
+  fieldId               String?  @db.ObjectId
+  defaultPrdTemplateId  String?  @db.ObjectId
+  defaultPrdTemplate    DefaultPrdTemplate? @relation("DefaultTemplateComments", fields: [defaultPrdTemplateId], references: [id], onDelete: Cascade)
+}

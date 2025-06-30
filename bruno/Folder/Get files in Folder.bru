@@ -1,0 +1,15 @@
+meta {
+  name: Get files in Folder
+  type: http
+  seq: 7
+}
+
+get {
+  url: http://localhost:3000/folder/:id/files
+  body: none
+  auth: none
+}
+
+params:path {
+  id: 67ac3c813614556130709c70
+}

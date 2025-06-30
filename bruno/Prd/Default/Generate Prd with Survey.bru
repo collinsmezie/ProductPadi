@@ -1,0 +1,47 @@
+meta {
+  name: Generate prd with Survey
+  type: http
+  seq: 1
+}
+
+post {
+  url: http://localhost:3000/prd/default/generate/survey
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "step1": {
+      "product-type-spec": "software product",
+      "agile-type": "agile"
+    },
+    "step2": {
+      "product-title": "e-campus"
+    },
+    "step3": {
+      "product-overview": "An e-campus for a nigerian university"
+    },
+    "step4": {
+      "target-users": "students, staff and more"
+    },
+    "step5": {
+      "product-problems-description": "Campus operations are tedious and difficult"
+    },
+    "step6": {
+      "product-objectives": "Make a functional and intuitive web UI "
+    },
+    "step7": {
+      "stakeholders": [
+        {
+          "name": "Hycainth",
+          "role": "VC"
+        }
+      ]
+    },
+    "step8": {
+      "product-visual": "file path"
+    }
+  }
+  
+}

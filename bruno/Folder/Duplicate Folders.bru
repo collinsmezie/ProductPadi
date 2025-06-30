@@ -1,0 +1,20 @@
+meta {
+  name: Duplicate Folders
+  type: http
+  seq: 6
+}
+
+post {
+  url: http://localhost:3000/folder/duplicate
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "ids": [
+      "67a806412b4e061759c7ca5f",
+      "67a7f7db172b93712461a1c7"
+    ]
+  }
+}

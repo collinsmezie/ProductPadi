@@ -1,0 +1,19 @@
+meta {
+  name: Delete PRD
+  type: http
+  seq: 1
+}
+
+delete {
+  url: http://localhost:3000/prd/
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "ids": [
+      "67a26470ad3462ddc835b186"
+    ]
+  }
+}

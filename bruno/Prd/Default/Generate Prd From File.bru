@@ -1,0 +1,15 @@
+meta {
+  name: Generate Prd From File
+  type: http
+  seq: 3
+}
+
+post {
+  url: http://localhost:3000/prd/default/generate/file
+  body: multipartForm
+  auth: none
+}
+
+body:multipart-form {
+  file: @file(C:\Users\hp\Downloads\JD_Fullstack Software Engineer (2).pdf)
+}

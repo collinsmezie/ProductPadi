@@ -1,0 +1,19 @@
+meta {
+  name: Duplicate Prds
+  type: http
+  seq: 4
+}
+
+post {
+  url: http://localhost:3000/prd/default/duplicate
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "ids": [
+      "67a25e68ad3462ddc835b16e"
+    ]
+  }
+}

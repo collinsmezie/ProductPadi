@@ -1,0 +1,18 @@
+meta {
+  name: Create Folder
+  type: http
+  seq: 1
+}
+
+post {
+  url: http://localhost:3000/folder/create
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "name": "Folder3",
+    "description": "A folder for test prd files"
+  }
+}

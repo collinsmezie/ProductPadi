@@ -1,0 +1,20 @@
+meta {
+  name: Add files to folder
+  type: http
+  seq: 2
+}
+
+post {
+  url: http://localhost:3000/folder/add-files
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "folderId": "67a7f7db172b93712461a1c7",
+    "prdIds": [
+      "67a261022aefc8f2e9ffdb19"
+    ]
+  }
+}

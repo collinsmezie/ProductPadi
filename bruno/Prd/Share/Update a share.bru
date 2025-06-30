@@ -1,0 +1,18 @@
+meta {
+  name: Update a share
+  type: http
+  seq: 2
+}
+
+put {
+  url: http://localhost:3000/prd/share
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "shareId": "67e8ab6b821aeb69e5019fdb",
+    "permission": "VIEW"
+  }
+}

@@ -1,0 +1,1357 @@
+openapi: 3.0.0
+info:
+  title: ProductPadi Backend API Documentation
+  version: 1.0.0
+  description: API for user authentication and Product Requirements Document (PRD) management.
+
+tags:
+  - name: Authentication
+    description: User authentication operations
+  - name: User Management
+    description: Operations for managing user information
+  - name: PRD Management
+    description: Operations for managing multiple PRDs
+  - name: PRD Generation
+    description: Methods to create new PRDs
+  - name: PRD Operations
+    description: Operations on individual PRDs
+  - name: Folder Management
+    description: Operations for managing folders
+
+security:
+  - cookieAuth: []
+
+paths:
+  # User Management Endpoints
+  /user:
+    get:
+      tags:
+        - User Management
+      summary: Get current user information
+      description: Retrieves the profile information of the currently authenticated user.
+      security:
+        - cookieAuth: []
+      responses:
+        "200":
+          description: User information retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  fullName:
+                    type: string
+                    example: "John Doe"
+                    description: The full name of the user
+                  email:
+                    type: string
+                    example: "john.doe@example.com"
+                    description: The email address of the user
+        "404":
+          description: User not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "User does not exist"
+                  context:
+                    type: string
+                    example: "This user doesn't exist"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Internal Server Error"
+                  originalError:
+                    type: string
+                    example: "Error message details"
+                  context:
+                    type: string
+                    example: "Couldn't find this user"
+
+  # Authentication Endpoints
+  /auth/register:
+    post:
+      tags:
+        - Authentication
+      summary: Register a new user
+      description: Creates a new user account with the provided details.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                fullName:
+                  type: string
+                  description: The full name of the user.
+                  example: John Doe
+                email:
+                  type: string
+                  description: The email address of the user.
+                  example: john.doe@example.com
+                password:
+                  type: string
+                  description: The password for the user account.
+                  example: password123
+              required:
+                - fullName
+                - email
+                - password
+      responses:
+        "201":
+          description: User created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: User created successfully
+                  user:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        example: 1
+                      email:
+                        type: string
+                        example: john.doe@example.com
+                      fullName:
+                        type: string
+                        example: John Doe
+        "409":
+          description: User already exists
+        "500":
+          description: Internal server error
+
+  /auth/login:
+    post:
+      tags:
+        - Authentication
+      summary: Log in a user
+      description: Authenticates a user and returns access and refresh tokens.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  description: The email address of the user.
+                  example: john.doe@example.com
+                password:
+                  type: string
+                  description: The password for the user account.
+                  example: password123
+              required:
+                - email
+                - password
+      responses:
+        "200":
+          description: User successfully logged in
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: User successfully logged in
+                  user:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        example: 1
+                      email:
+                        type: string
+                        example: john.doe@example.com
+                      fullName:
+                        type: string
+                        example: John Doe
+        "404":
+          description: Invalid email or password
+        "500":
+          description: Internal server error
+
+  /auth/logout:
+    post:
+      tags:
+        - Authentication
+      summary: Log out a user
+      description: Logs out the user and clears the session and cookies.
+      responses:
+        "200":
+          description: Successfully logged out
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Successfully logged out
+        "500":
+          description: Internal server error
+
+  # PRD Management Endpoints
+  /prd:
+    get:
+      tags:
+        - PRD Management
+      summary: Get PRDs
+      description: Retrieves a list of Product Requirements Documents (PRDs) for the authenticated user.
+      parameters:
+        - in: query
+          name: page
+          required: false
+          schema:
+            type: string
+          description: The page number for pagination.
+        - in: query
+          name: size
+          required: false
+          schema:
+            type: string
+          description: The number of items per page.
+      security:
+        - cookieAuth: []
+      responses:
+        "200":
+          description: A list of PRDs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                      example: "1"
+                    title:
+                      type: string
+                      example: "Sample PRD"
+                    prdType:
+                      type: string
+                      example: "DEFAULT"
+                    createdAt:
+                      type: string
+                      format: date-time
+                      example: "2024-01-01T00:00:00Z"
+        "500":
+          description: Internal server error
+
+    delete:
+      tags:
+        - PRD Management
+      summary: Delete PRDs
+      description: Deletes specified Product Requirements Documents (PRDs) for the authenticated user.
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                ids:
+                  type: array
+                  items:
+                    type: string
+                  example: ["1", "2"]
+      responses:
+        "200":
+          description: Successfully deleted PRDs
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  deletedCount:
+                    type: integer
+                    example: 2
+                  message:
+                    type: string
+                    example: "Deleted successfully"
+        "400":
+          description: Bad request
+        "500":
+          description: Internal server error
+
+  /prd/default/duplicate:
+    post:
+      tags:
+        - PRD Management
+      summary: Duplicate PRDs
+      description: Duplicates specified PRDs for the authenticated user.
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                ids:
+                  type: array
+                  items:
+                    type: string
+                  example: ["1", "2"]
+      responses:
+        "200":
+          description: Successfully duplicated PRDs
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  duplicatedCount:
+                    type: integer
+                    example: 2
+                  message:
+                    type: string
+                    example: "Successfully duplicated 2 PRD(s)"
+        "400":
+          description: Bad request
+        "500":
+          description: Internal server error
+
+  # PRD Generation Endpoints
+  /prd/default/generate/survey:
+    post:
+      tags:
+        - PRD Generation
+      summary: Generate Default PRD from Survey
+      description: Generates a default PRD based on survey data.
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                step1:
+                  type: object
+                  properties:
+                    "product-type-spec":
+                      type: string
+                      enum: ["software product", "non-software product"]
+                step2:
+                  type: object
+                  properties:
+                    "product-title":
+                      type: string
+                step3:
+                  type: object
+                  properties:
+                    "product-overview":
+                      type: string
+                step4:
+                  type: object
+                  properties:
+                    "target-users":
+                      type: string
+                step5:
+                  type: object
+                  properties:
+                    "product-problems-description":
+                      type: string
+                step6:
+                  type: object
+                  properties:
+                    "product-objectives":
+                      type: string
+                step7:
+                  type: object
+                  properties:
+                    stakeholders:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          name:
+                            type: string
+                          role:
+                            type: string
+      responses:
+        "200":
+          description: Successfully generated PRD
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        example: "1"
+                      title:
+                        type: string
+                        example: "Generated PRD"
+        "400":
+          description: Bad request
+        "500":
+          description: Internal server error
+
+  /prd/default/generate/file:
+    post:
+      tags:
+        - PRD Generation
+      summary: Generate default PRD from uploaded file
+      description: Generates a Product Requirement Document by analyzing an uploaded file using AI
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: The file to analyze for PRD generation
+      responses:
+        "200":
+          description: Successfully generated PRD
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        description: Unique identifier for the generated PRD
+                      content:
+                        type: object
+                        description: The generated PRD content
+                      userId:
+                        type: string
+                        description: ID of the user who generated the PRD
+                      createdAt:
+                        type: string
+                        format: date-time
+                      updatedAt:
+                        type: string
+                        format: date-time
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  error:
+                    type: string
+                    example: "Invalid file format"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  error:
+                    type: string
+                    example: "Authentication required"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  error:
+                    type: string
+                    example: "Failed to process file and generate PRD"
+                  context:
+                    type: string
+                    example: "File processing service"
+                  originalError:
+                    type: string
+                    example: "Error details"
+
+  # PRD Specific Operations
+  /prd/default/{id}:
+    get:
+      tags:
+        - PRD Operations
+      summary: Get Default PRD by ID
+      description: Retrieves a specific default PRD by its ID.
+      security:
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: The ID of the PRD to retrieve.
+      responses:
+        "200":
+          description: A default PRD
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    example: "1"
+                  overview:
+                    type: string
+                    example: "Overview of the PRD"
+                  objectives:
+                    type: array
+                    items:
+                      type: string
+                    example: ["Objective 1", "Objective 2"]
+        "404":
+          description: PRD not found
+        "500":
+          description: Internal server error
+
+    put:
+      tags:
+        - PRD Operations
+      summary: Update Default PRD
+      description: Updates a specific default PRD with the provided data. Supports create, update, and delete operations for PRD components.
+      security:
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: The ID of the PRD to update.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                create:
+                  type: object
+                  properties:
+                    functionalRequirements:
+                      type: array
+                      items:
+                        type: string
+                      description: New functional requirements to add
+                    nonFunctionalRequirements:
+                      type: array
+                      items:
+                        type: string
+                      description: New non-functional requirements to add
+                    objectives:
+                      type: array
+                      items:
+                        type: string
+                      description: New product objectives to add
+                    assumptionAndConstraints:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          assumption:
+                            type: string
+                          constraint:
+                            type: string
+                      description: New assumptions and constraints to add
+                    dependencies:
+                      type: array
+                      items:
+                        type: string
+                      description: New dependencies to add
+                    acceptanceCriteria:
+                      type: object
+                      properties:
+                        acceptance:
+                          type: array
+                          items:
+                            type: string
+                        criteria:
+                          type: array
+                          items:
+                            type: string
+                      description: New acceptance criteria to add
+                    riskAnalysis:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          risk:
+                            type: string
+                          mitigation:
+                            type: string
+                      description: New risk analysis entries to add
+                    priorityEffort:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          requirements:
+                            type: string
+                          priority:
+                            type: string
+                            enum: [High, Medium, Low]
+                          estimatedEffort:
+                            type: string
+                      description: New priority and effort estimations to add
+                    versionHistory:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          version:
+                            type: string
+                          date:
+                            type: string
+                            format: date
+                          descriptionOfEdit:
+                            type: array
+                            items:
+                              type: string
+                          editsCompletedBy:
+                            type: string
+                      description: New version history entries to add
+                    stakeholders:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          name:
+                            type: string
+                          role:
+                            type: string
+                      description: New stakeholders to add
+                    personalDetails:
+                      type: object
+                      properties:
+                        productTitle:
+                          type: string
+                        author:
+                          type: string
+                        phoneNumber:
+                          type: string
+                        email:
+                          type: string
+                          format: email
+                        productVisualFileUrl:
+                          type: string
+                        address:
+                          type: string
+                      description: Personal details to create or update
+                update:
+                  type: object
+                  properties:
+                    title:
+                      type: string
+                      description: New title for the PRD
+                    functionalRequirements:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          id:
+                            type: string
+                          new:
+                            type: string
+                      description: Functional requirements to update
+                    nonFunctionalRequirements:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          id:
+                            type: string
+                          new:
+                            type: string
+                      description: Non-functional requirements to update
+                    objectives:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          id:
+                            type: string
+                          new:
+                            type: string
+                      description: Product objectives to update
+                    assumptionAndConstraints:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          id:
+                            type: string
+                          new:
+                            type: object
+                            properties:
+                              assumption:
+                                type: string
+                              constraint:
+                                type: string
+                      description: Assumptions and constraints to update
+                    dependencies:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          id:
+                            type: string
+                          new:
+                            type: string
+                      description: Dependencies to update
+                    acceptanceCriteria:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          id:
+                            type: string
+                          new:
+                            type: object
+                            properties:
+                              acceptance:
+                                type: array
+                                items:
+                                  type: string
+                              criteria:
+                                type: array
+                                items:
+                                  type: string
+                      description: Acceptance criteria to update
+                    riskAnalysis:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          id:
+                            type: string
+                          new:
+                            type: object
+                            properties:
+                              risk:
+                                type: string
+                              mitigation:
+                                type: string
+                      description: Risk analysis entries to update
+                    priorityEffort:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          id:
+                            type: string
+                          new:
+                            type: object
+                            properties:
+                              requirements:
+                                type: string
+                              priority:
+                                type: string
+                                enum: [High, Medium, Low]
+                              estimatedEffort:
+                                type: string
+                      description: Priority and effort estimations to update
+                    versionHistory:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          id:
+                            type: string
+                          new:
+                            type: object
+                            properties:
+                              version:
+                                type: string
+                              date:
+                                type: string
+                                format: date
+                              descriptionOfEdit:
+                                type: array
+                                items:
+                                  type: string
+                              editsCompletedBy:
+                                type: string
+                      description: Version history entries to update
+                    stakeholders:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          id:
+                            type: string
+                          new:
+                            type: object
+                            properties:
+                              name:
+                                type: string
+                              role:
+                                type: string
+                      description: Stakeholders to update
+                    personalDetails:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        new:
+                          type: object
+                          properties:
+                            productTitle:
+                              type: string
+                            author:
+                              type: string
+                            phoneNumber:
+                              type: string
+                            email:
+                              type: string
+                              format: email
+                            productVisualFileUrl:
+                              type: string
+                            address:
+                              type: string
+                      description: Personal details to update
+                delete:
+                  type: object
+                  properties:
+                    functionalRequirements:
+                      type: array
+                      items:
+                        type: string
+                      description: IDs of functional requirements to delete
+                    nonFunctionalRequirements:
+                      type: array
+                      items:
+                        type: string
+                      description: IDs of non-functional requirements to delete
+                    objectives:
+                      type: array
+                      items:
+                        type: string
+                      description: IDs of product objectives to delete
+                    assumptionAndConstraints:
+                      type: array
+                      items:
+                        type: string
+                      description: IDs of assumptions and constraints to delete
+                    dependencies:
+                      type: array
+                      items:
+                        type: string
+                      description: IDs of dependencies to delete
+                    acceptanceCriteria:
+                      type: array
+                      items:
+                        type: string
+                      description: IDs of acceptance criteria to delete
+                    riskAnalysis:
+                      type: array
+                      items:
+                        type: string
+                      description: IDs of risk analysis entries to delete
+                    priorityEffort:
+                      type: array
+                      items:
+                        type: string
+                      description: IDs of priority and effort estimations to delete
+                    versionHistory:
+                      type: array
+                      items:
+                        type: string
+                      description: IDs of version history entries to delete
+                    stakeholders:
+                      type: array
+                      items:
+                        type: string
+                      description: IDs of stakeholders to delete
+              required: []
+            example:
+              create:
+                functionalRequirements: ["User can generate a PDF of the PRD"]
+              update:
+                title: "Updated Product Requirements Document"
+                functionalRequirements:
+                  [{ "id": "requirement-id-1", "new": "Updated requirement description" }]
+              delete:
+                nonFunctionalRequirements: ["requirement-id-to-delete"]
+      responses:
+        "200":
+          description: PRD updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+        "400":
+          description: Bad request - validation error or invalid data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Invalid input data"
+                  details:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        path:
+                          type: array
+                          items:
+                            type: string
+                        message:
+                          type: string
+        "404":
+          description: PRD not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "PRD not found"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Failed to update the PRD"
+  
+  # Folder Management Endpoints
+
+  /folder:
+    get:
+      tags:
+        - Folder Management
+      summary: Get folders with pagination
+      description: Retrieves a list of folders for the authenticated user with optional pagination.
+      parameters:
+        - in: query
+          name: page
+          required: false
+          schema:
+            type: string
+          description: The page number for pagination.
+        - in: query
+          name: size
+          required: false
+          schema:
+            type: string
+          description: The number of items per page.
+      security:
+        - cookieAuth: []
+      responses:
+        "200":
+          description: A list of folders
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                      example: "folder-123"
+                    name:
+                      type: string
+                      example: "Project X Materials"
+                    description:
+                      type: string
+                      example: "Contains all PRDs for Project X"
+                    createdAt:
+                      type: string
+                      format: date-time
+                      example: "2024-01-01T00:00:00Z"
+                    totalFiles:
+                      type: integer
+                      example: 5
+        "400":
+          description: Bad request - invalid pagination parameters
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Both page and size must be provided for pagination"
+        "500":
+          description: Internal server error
+
+    delete:
+      tags:
+        - Folder Management
+      summary: Delete folders
+      description: Deletes specified folders for the authenticated user.
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                ids:
+                  type: array
+                  items:
+                    type: string
+                  example: ["folder-123", "folder-456"]
+                  description: Array of folder IDs to delete
+              required:
+                - ids
+      responses:
+        "200":
+          description: Successfully deleted folders
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  deletedCount:
+                    type: integer
+                    example: 2
+        "400":
+          description: Bad request - validation error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "At least one folder must be selected"
+        "404":
+          description: Not all folders were found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Some folders could not be deleted"
+                  details:
+                    type: string
+                    example: "Deleted 1 out of 2 folders"
+                  context:
+                    type: string
+                    example: "Not all folders were found"
+        "500":
+          description: Internal server error
+
+  /folder/create:
+    post:
+      tags:
+        - Folder Management
+      summary: Create a new folder
+      description: Creates a new folder for the authenticated user.
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: The name of the folder.
+                  example: "Project X Materials"
+                description:
+                  type: string
+                  description: The description of the folder.
+                  example: "Contains all PRDs for Project X"
+              required:
+                - name
+                - description
+      responses:
+        "201":
+          description: Folder created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    example: "folder-123"
+                  name:
+                    type: string
+                    example: "Project X Materials"
+                  description:
+                    type: string
+                    example: "Contains all PRDs for Project X"
+        "409":
+          description: Folder name has already been used
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Folder name has already been used"
+                  context:
+                    type: string
+                    example: "This user has already used this folder name"
+        "500":
+          description: Internal server error
+
+  /folder/{id}/files:
+    get:
+      tags:
+        - Folder Management
+      summary: Get files in a folder
+      description: Retrieves the list of PRD files in a specific folder.
+      security:
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: The ID of the folder to retrieve files from.
+      responses:
+        "200":
+          description: A list of PRD files in the folder
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                      example: "prd-123"
+                    title:
+                      type: string
+                      example: "Feature X Requirements"
+                    createdAt:
+                      type: string
+                      format: date-time
+                      example: "2024-01-01T00:00:00Z"
+        "404":
+          description: Folder not found
+        "500":
+          description: Internal server error
+
+  /folder/add-files:
+    post:
+      tags:
+        - Folder Management
+      summary: Add files to a folder
+      description: Adds specified PRD files to a folder.
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                folderId:
+                  type: string
+                  description: The ID of the folder to add files to.
+                  example: "folder-123"
+                prdIds:
+                  type: array
+                  items:
+                    type: string
+                  description: Array of PRD IDs to add to the folder.
+                  example: ["prd-123", "prd-456"]
+              required:
+                - folderId
+                - prdIds
+      responses:
+        "200":
+          description: Successfully added files to folder
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  updatedFolder:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        example: "folder-123"
+                      name:
+                        type: string
+                        example: "Project X Materials"
+        "400":
+          description: Bad request - validation error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "At least one PRD file must be selected"
+        "404":
+          description: Folder or PRDs not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Folder not found"
+                  context:
+                    type: string
+                    example: "The specified folder does not exist or does not belong to the user"
+        "500":
+          description: Internal server error
+
+  /folder/duplicate:
+    post:
+      tags:
+        - Folder Management
+      summary: Duplicate folders
+      description: Duplicates specified folders and their contents for the authenticated user.
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                ids:
+                  type: array
+                  items:
+                    type: string
+                  description: Array of folder IDs to duplicate.
+                  example: ["folder-123", "folder-456"]
+              required:
+                - ids
+      responses:
+        "200":
+          description: Successfully duplicated folders
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  duplicatedCount:
+                    type: integer
+                    example: 2
+                  duplicatedFolders:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          example: "folder-789"
+                        name:
+                          type: string
+                          example: "Project X Materials Copy"
+                        prdIds:
+                          type: array
+                          items:
+                            type: string
+                        createdAt:
+                          type: string
+                          format: date-time
+                  message:
+                    type: string
+                    example: "Successfully duplicated 2 folders"
+        "400":
+          description: Bad request - validation error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "At least one folder must be selected"
+        "500":
+          description: Internal server error
+
+components:
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: accessToken
+      description: Authentication cookie for logged in users

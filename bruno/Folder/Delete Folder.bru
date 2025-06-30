@@ -1,0 +1,19 @@
+meta {
+  name: Delete Folder
+  type: http
+  seq: 5
+}
+
+delete {
+  url: http://localhost:3000/folder/
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "ids": [
+      "67a7f3a6966bc53442269581"
+    ]
+  }
+}

@@ -1,0 +1,40 @@
+meta {
+  name: Edit a PRD
+  type: http
+  seq: 5
+}
+
+put {
+  url: http://localhost:3000/prd/default/:id
+  body: json
+  auth: none
+}
+
+params:path {
+  id: 67c4718a63c429e66350f438
+}
+
+body:json {
+  {
+    "create": {
+      "title": "E-Campus V2",
+      "personalDetails": {
+        "productTitle": "Your Product Title",
+        "author": "Thomas Smith",
+        "phoneNumber": "123-456-7890",
+        "email": "thomas@example.com",
+        "address": "123 Main St"
+      }
+    },
+    "update": {
+      "acceptanceCriteria": [
+        {
+          "id": "67c4718d63c429e66350f450",
+          "new": {
+            "criteria": "Users can register and login without errors."
+          }
+        }
+      ]
+    }
+  }
+}
